@@ -1,0 +1,270 @@
+/* ============================================================
+   AAS — aas-extra.css
+   Styles for screens added in v1.1 (Login, Ayushman module,
+   consent/audit/profile, safety states). Design tokens from
+   styles.css :root are reused throughout.
+   ============================================================ */
+
+/* ── Shared primitives ────────────────────────────────────── */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow)}
+.wide{width:100%}
+.tall{padding:14px 16px;font-size:14px}
+.small{padding:8px 12px;font-size:12px}
+.ghost-button{display:inline-flex;align-items:center;justify-content:center;gap:7px;background:transparent;color:var(--blue);border:1px solid var(--line);border-radius:8px;padding:10px 14px;font-size:12px;font-weight:700}
+.ghost-button:hover{background:#f8fafc}
+.ghost-button.small{padding:8px 11px;font-size:11px}
+.ghost-button.danger{color:#b91c1c;border-color:#fecaca}
+.ghost-button.danger:hover{background:#fef2f2}
+.flip{transform:rotate(180deg)}
+.rotated{transform:rotate(90deg)}
+
+.demo-chip{display:inline-flex;align-items:center;background:#fef3c7;color:#92400e;font-size:8.5px;font-weight:800;letter-spacing:.8px;border-radius:5px;padding:2px 6px;margin-left:6px;vertical-align:middle}
+.demo-chip.dark{background:rgba(255,255,255,.16);color:#fff}
+
+.field-label{display:block;font-size:12px;font-weight:800;color:#334155;margin:0 0 7px}
+.field-error{color:#b91c1c;font-size:12px;font-weight:700;margin:8px 0 0}
+.field-hint{color:#64748b;font-size:12px;margin:10px 0 16px}
+.mobile-field{display:flex;align-items:center;border:1.5px solid var(--line);border-radius:9px;background:#fff;overflow:hidden}
+.mobile-field:focus-within{border-color:#93c5fd;box-shadow:0 0 0 3px #dbeafe}
+.mobile-field .prefix{padding:13px 12px;background:#f8fafc;color:#475569;font-weight:800;font-size:13px;border-right:1px solid var(--line)}
+.mobile-field input{border:0;outline:0;flex:1;padding:13px 12px;font-size:14px;background:transparent}
+.otp-input{width:100%;text-align:center;font-size:22px;letter-spacing:8px;font-weight:800;border:1.5px solid var(--line);border-radius:9px;padding:13px;outline:0;background:#fff}
+.otp-input.left{text-align:left;letter-spacing:normal;font-size:14px;font-weight:600;padding:13px 14px}
+.otp-input:focus{border-color:#93c5fd;box-shadow:0 0 0 3px #dbeafe}
+
+.loading{display:flex;flex-direction:column;align-items:center;gap:12px;padding:44px 20px;color:#64748b;font-size:13px;font-weight:600}
+.loading.compact{flex-direction:row;padding:12px}
+.spinner{width:26px;height:26px;border-radius:50%;border:3px solid #dbeafe;border-top-color:var(--blue);animation:aas-spin 1s linear infinite}
+.spinner.big{width:36px;height:36px;border-width:4px}
+@keyframes aas-spin{to{transform:rotate(360deg)}}
+
+.empty-state,.error-state,.center-state{display:flex;flex-direction:column;align-items:center;text-align:center;gap:7px;padding:42px 22px;color:#475569}
+.empty-icon{width:46px;height:46px;display:grid;place-items:center;border-radius:12px;background:#eff6ff;color:var(--blue)}
+.error-icon{width:44px;height:44px;display:grid;place-items:center;border-radius:50%;background:#fef2f2;color:#dc2626;font-size:20px;font-weight:900}
+.error-state strong,.empty-state strong{font-size:15px;color:#0f172a}
+.error-state p,.empty-state p{font-size:12.5px;color:#64748b;margin:0 0 12px;max-width:380px;line-height:1.55}
+
+/* ── Login screen ─────────────────────────────────────────── */
+.login-screen{min-height:100vh;display:grid;place-items:center;background:linear-gradient(150deg,#eff6ff 0%,#f8fafc 55%,#ecfdf5 100%);padding:22px}
+.login-card{width:100%;max-width:400px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 18px 44px rgba(15,23,42,.08);padding:30px 26px 24px;text-align:center}
+.login-brand h1{font-size:34px;letter-spacing:-1.2px;margin:14px 0 2px}
+.login-brand p{color:#64748b;font-size:13px;margin:0}
+.brand-mark.large{width:52px;height:52px;border-radius:15px;margin:0 auto}
+.login-tagline{display:inline-block;margin-top:10px;color:var(--blue);background:#eff6ff;border-radius:999px;padding:6px 13px;font-size:11px;font-weight:700}
+.login-card form{text-align:left;margin-top:22px}
+.login-card .wide{margin-top:4px}
+.login-card .ghost-button.wide{margin-top:9px}
+.login-safety{display:flex;align-items:center;justify-content:center;gap:6px;color:#94a3b8;font-size:10.5px;margin:20px 0 0;border-top:1px solid #f1f5f9;padding-top:15px}
+
+/* ── Dashboard additions ──────────────────────────────────── */
+.ayushman-strip{display:flex;align-items:center;justify-content:space-between;gap:10px;grid-column:1 / -1;background:linear-gradient(130deg,#10265e,#1e40af);border:0!important;color:#fff;padding:15px 19px;border-radius:14px;box-shadow:var(--shadow);cursor:pointer;text-align:left}
+/* Keep the summary card's branded surface ahead of the generic dashboard section rule. */
+.dashboard-grid > .ayushman-strip{background:linear-gradient(130deg,#10265e,#1e40af)!important}
+.ayushman-strip-left{display:flex;align-items:center;gap:12px}
+.ayushman-strip-icon{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.14);display:grid;place-items:center;color:#fff}
+.ayushman-strip strong{display:block;font-size:14px;letter-spacing:-.2px}
+.ayushman-strip .demo-chip{margin-left:8px}
+.status-inline{display:block;font-size:11.5px;margin-top:3px;font-weight:700}
+.status-inline.active{color:#86efac}
+.status-inline.pending{color:#fde68a}
+.ayushman-strip-actions{display:flex;gap:7px;flex-shrink:0}
+.chip-button{display:inline-flex;align-items:center;gap:6px;background:#fff;color:#1e3a8a;border:0;border-radius:8px;padding:8px 11px;font-size:11px;font-weight:800}
+.chip-button:hover{background:#eff6ff}
+.chip-button.ghost{background:rgba(255,255,255,.14);color:#fff}
+.chip-button.ghost:hover{background:rgba(255,255,255,.26)}
+.hero-hospital{margin-top:5px!important;color:#bfdbfe!important;font-size:11px!important}
+
+.quick-icon.saffron{background:#ffedd5;color:#ea580c}
+.quick-icon.slate{background:#f1f5f9;color:#475569}
+.quick-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ── Ayushman module ──────────────────────────────────────── */
+.ayushman-layout{display:grid;grid-template-columns:1.25fr .85fr;gap:18px}
+.ayushman-card-visual{grid-column:1;background:linear-gradient(135deg,#1e3a8a,#2563eb 60%,#3b82f6);border:0!important;color:#fff;border-radius:16px;padding:23px;box-shadow:var(--shadow)}
+.acv-top{display:flex;align-items:flex-start;gap:12px}
+.acv-emblem{width:42px;height:42px;border-radius:11px;background:rgba(255,255,255,.16);display:grid;place-items:center}
+.acv-top strong{display:block;font-size:16px;letter-spacing:-.3px}
+.acv-top span{display:block;font-size:11px;color:#bfdbfe;margin-top:3px}
+.acv-top .demo-chip{margin-left:auto}
+.acv-status{margin:20px 0 14px;display:flex;flex-direction:column;gap:8px}
+.status-pill{align-self:flex-start;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800;border-radius:999px;padding:7px 13px}
+.status-pill.success{background:#dcfce7;color:#166534}
+.status-pill.warning{background:#fef3c7;color:#92400e}
+.status-pill.error{background:#fee2e2;color:#991b1b}
+.acv-status p{margin:0;font-size:12.5px;color:#dbeafe}
+.acv-details{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;border-top:1px solid rgba(255,255,255,.22);padding-top:16px}
+.acv-details small{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.9px;color:#bfdbfe;font-weight:800}
+.acv-details strong{display:block;font-size:13px;margin-top:5px}
+.acv-actions{display:flex;gap:8px;margin-top:19px;flex-wrap:wrap}
+.acv-actions .chip-button.ghost{border:1px solid rgba(255,255,255,.3)}
+
+.ayushman-side{display:flex;flex-direction:column;gap:14px;height:max-content}
+.ayushman-links{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:7px 17px}
+.ayushman-link{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 0;border-bottom:1px solid #eef2f7;background:transparent}
+.ayushman-link:last-child{border-bottom:0}
+.ayushman-link>svg:first-child{color:var(--blue);background:#eff6ff;width:35px;height:35px;padding:8px;border-radius:9px;flex-shrink:0}
+.ayushman-link strong{display:block;font-size:13px;color:#0f172a}
+.ayushman-link span{display:block;font-size:11px;color:#94a3b8;margin-top:3px}
+.ayushman-link>svg:last-child{margin-left:auto;color:#94a3b8}
+.ayushman-note{display:flex;gap:10px;background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:14px 16px}
+.ayushman-note svg{color:#b45309;flex-shrink:0;margin-top:2px}
+.ayushman-note p{margin:0;font-size:11.5px;color:#78350f;line-height:1.55}
+
+.eligibility-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:25px}
+.eligibility-card form{text-align:left}
+.eligibility-card .otp-input.left{margin-bottom:17px}
+.eligibility-card .primary-button{margin-top:5px}
+.eligibility-card h2{font-size:19px;margin:6px 0}
+.eligibility-result-actions{display:flex;gap:9px;margin-top:14px;flex-wrap:wrap;justify-content:center}
+
+.benefits-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.benefit-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:20px}
+.benefit-icon{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;margin-bottom:13px}
+.benefit-icon.hospital{background:#dbeafe;color:#2563eb}
+.benefit-icon.heart{background:#ffe4e6;color:#e11d48}
+.benefit-icon.test{background:#ede9fe;color:#7c3aed}
+.benefit-icon.pill{background:#fef3c7;color:#d97706}
+.benefit-icon.shield{background:#dcfce7;color:#16a34a}
+.benefit-card h3{font-size:15px;margin:0 0 6px}
+.benefit-card p{font-size:12px;color:#64748b;line-height:1.55;margin:0}
+.benefits-footer{display:flex;align-items:center;justify-content:space-between;gap:14px;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:15px 19px;margin-top:16px}
+.benefits-footer p{font-size:12px;color:#64748b;margin:0}
+
+.hospital-search{display:flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:16px;max-width:560px;color:#94a3b8}
+.hospital-search input{border:0;outline:0;flex:1;font-size:13.5px;color:#334155;background:transparent}
+.hospital-list{display:flex;flex-direction:column;gap:13px}
+.hospital-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:19px 21px}
+.hospital-head{display:flex;align-items:center;gap:12px}
+.hospital-icon{width:40px;height:40px;border-radius:11px;background:#eff6ff;color:var(--blue);display:grid;place-items:center;flex-shrink:0}
+.hospital-head h3{font-size:15px;margin:0}
+.hospital-head p{font-size:11.5px;color:#94a3b8;margin:3px 0 0}
+.empanel-badge{margin-left:auto;display:inline-flex;align-items:center;gap:5px;background:#dcfce7;color:#166534;font-size:10.5px;font-weight:800;border-radius:999px;padding:6px 10px;white-space:nowrap}
+.empanel-badge.not{background:#f1f5f9;color:#64748b}
+.hospital-address{display:flex;align-items:center;gap:6px;font-size:12px;color:#64748b;margin:12px 0 0}
+.hospital-depts{display:flex;flex-wrap:wrap;gap:6px;margin-top:11px}
+.dept-chip{background:#f1f5f9;color:#475569;font-size:10.5px;font-weight:700;border-radius:6px;padding:5px 9px}
+.hospital-actions{display:flex;gap:8px;margin-top:15px;flex-wrap:wrap}
+.hospital-actions.big{margin-top:19px}
+
+.hospital-detail-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:23px}
+.hospital-detail-card h2{font-size:19px;margin:0}
+.hospital-detail-card .hospital-head p{color:#16a34a;font-weight:700}
+.detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:13px;margin:19px 0;border-top:1px solid #eef2f7;padding-top:17px}
+.detail-grid small{display:block;font-size:9.5px;text-transform:uppercase;letter-spacing:.9px;color:#94a3b8;font-weight:800}
+.detail-grid strong{display:block;font-size:12.5px;margin-top:5px;line-height:1.5}
+.back-link{display:inline-flex;align-items:center;gap:6px;color:#64748b;font-size:12px;font-weight:700;background:transparent;margin-bottom:13px}
+
+.help-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.help-topic-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:19px;text-align:left;position:relative}
+.help-topic-card:hover{border-color:#bfdbfe}
+.help-topic-icon{width:38px;height:38px;border-radius:10px;background:#eff6ff;color:var(--blue);display:grid;place-items:center;margin-bottom:12px}
+.help-topic-card strong{display:block;font-size:14px;color:#0f172a}
+.help-topic-card p{font-size:11.5px;color:#64748b;margin:5px 0 0;line-height:1.5}
+.topic-arrow{position:absolute;right:14px;top:19px;color:#94a3b8}
+.support-card{display:flex;gap:13px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:16px 19px;margin-top:16px;max-width:640px}
+.support-card svg{color:var(--blue);flex-shrink:0;margin-top:2px}
+.support-card strong{display:block;font-size:13px;color:#0f172a}
+.support-card p{font-size:12px;color:#475569;margin:4px 0 0;line-height:1.5}
+
+.document-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:19px;text-align:left}
+.document-icon{width:38px;height:38px;border-radius:10px;background:#eff6ff;color:var(--blue);display:grid;place-items:center;margin-bottom:12px}
+.document-card h3{font-size:14px;margin:0}
+.document-card p{font-size:11.5px;color:#64748b;margin:5px 0 13px;line-height:1.5}
+
+/* ── Records detail + Chat thinking dots ─────────────────── */
+.record-detail{padding:13px 0 17px 141px;border-bottom:1px solid #eef2f7;margin-top:-3px}
+.record-detail p{margin:0 0 10px;font-size:12px;color:#475569;line-height:1.6;max-width:560px}
+.dots{display:inline-flex;gap:4px;align-items:center}
+.dots i{width:6px;height:6px;border-radius:50%;background:#94a3b8;animation:aas-blink 1.2s infinite}
+.dots i:nth-child(2){animation-delay:.2s}
+.dots i:nth-child(3){animation-delay:.4s}
+@keyframes aas-blink{0%,80%,100%{opacity:.25}40%{opacity:1}}
+
+/* ── Prescription ─────────────────────────────────────── */
+.prescription-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:23px}
+.prescription-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;border-bottom:1px solid #eef2f7;padding-bottom:16px;margin-bottom:6px}
+.prescription-head h2{font-size:19px;margin:5px 0 3px}
+.prescription-head p{font-size:12px;color:#64748b;margin:0}
+.rx-badge{width:40px;height:40px;border-radius:11px;background:#eff6ff;color:var(--blue);display:grid;place-items:center}
+.rx-row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #f1f5f9}
+.rx-row:last-of-type{border-bottom:0}
+.rx-row strong{display:block;font-size:13.5px}
+.rx-row span{display:block;font-size:11px;color:#94a3b8;margin-top:3px}
+.rx-note{font-size:11px;color:#94a3b8;border-top:1px dashed #e2e8f0;padding-top:13px;margin:15px 0 0;line-height:1.5}
+.time-icon.morning{background:#fff7df;color:#d97706}
+.time-icon.afternoon{background:#fff0de;color:#ea6a47}
+.time-icon.night{background:#e9edff;color:#4f46e5}
+.medicine-summary{font-size:11.5px;color:#64748b;margin:14px 0 10px}
+
+/* ── Consent / audit / profile ────────────────────────────── */
+.consent-card{max-width:720px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:25px}
+.consent-header{display:flex;align-items:center;gap:13px;margin-bottom:19px}
+.consent-icon{width:42px;height:42px;border-radius:12px;background:#e4f1ff;color:var(--blue);display:grid;place-items:center}
+.consent-header h2{font-size:17px;margin:0 0 4px}
+.consent-header p{font-size:12px;color:#64748b;margin:0}
+.consent-row{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:13px;border-top:1px solid #eef2f7;padding:14px 0}
+.consent-text strong{display:block;font-size:13px}
+.consent-text span{display:block;font-size:11px;color:#94a3b8;margin-top:3px}
+.toggle{width:42px;height:24px;border-radius:999px;background:#e2e8f0;position:relative;transition:background .18s;border:0}
+.toggle i{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.25);transition:left .18s}
+.toggle.on{background:#22c55e}
+.toggle.on i{left:21px}
+.access-badge{display:inline-flex;align-items:center;gap:5px;color:#16a34a;font-size:11px;font-weight:800;min-width:74px;justify-content:center;background:#f0fdf4;border-radius:7px;padding:6px 8px}
+.access-badge.off{color:#b91c1c;background:#fef2f2}
+.consent-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+.consent-history{border-top:1px dashed #e2e8f0;margin-top:16px;padding-top:14px}
+.history-row{display:flex;gap:10px;padding:8px 0;align-items:flex-start}
+.history-dot{width:7px;height:7px;border-radius:50%;background:#93c5fd;margin-top:6px;flex-shrink:0}
+.history-row strong{display:block;font-size:12px}
+.history-row time{display:block;font-size:10.5px;color:#94a3b8;margin-top:2px}
+.screen-note{font-size:11px;color:#94a3b8;margin:14px 2px 0;line-height:1.5;max-width:640px}
+
+.audit-card{max-width:640px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:8px 20px}
+.audit-row{display:flex;align-items:center;gap:12px;padding:15px 0;border-bottom:1px solid #f1f5f9}
+.audit-row:last-child{border-bottom:0}
+.audit-row time{color:#64748b;font-size:11.5px;min-width:66px}
+.audit-dot{width:8px;height:8px;border-radius:50%;background:#93c5fd}
+.audit-row p{margin:0;font-size:12.5px;color:#334155;font-weight:600}
+.audit-row .demo-chip{margin-left:auto}
+
+.profile-card{max-width:640px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:25px}
+.profile-head{display:flex;align-items:center;gap:14px;padding-bottom:18px;border-bottom:1px solid #eef2f7}
+.avatar.big{width:54px;height:54px;border-radius:14px;font-size:15px}
+.profile-head h2{font-size:19px;margin:0}
+.profile-head p{font-size:12px;color:#64748b;margin:4px 0 7px}
+.profile-links{margin-top:8px}
+.profile-link{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:15px 0;border-bottom:1px solid #f1f5f9;background:transparent}
+.profile-link>svg:first-child{color:var(--blue);background:#eff6ff;width:35px;height:35px;padding:8px;border-radius:9px}
+.profile-link strong{display:block;font-size:13px}
+.profile-link span{display:block;font-size:11px;color:#94a3b8;margin-top:3px}
+.profile-link>svg:last-child{margin-left:auto;color:#94a3b8}
+.profile-card .ghost-button.danger{margin-top:17px}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media(max-width:1020px){
+  .benefits-grid,.help-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:850px){
+  .ayushman-layout{grid-template-columns:1fr}
+  .benefits-grid,.help-grid{grid-template-columns:1fr 1fr}
+  .benefits-footer{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:650px){
+  .sidebar-help{display:none}
+  .nav-label-spaced{margin-top:18px}
+  .bottom-nav{display:flex}
+  .bottom-nav button span{font-size:8.5px}
+  .login-card{padding:26px 20px 20px}
+  .ayushman-card-visual{padding:19px}
+  .acv-details{grid-template-columns:1fr 1fr}
+  .acv-details div:last-child{grid-column:1 / -1}
+  .benefits-grid,.help-grid{grid-template-columns:1fr}
+  .ayushman-strip{flex-wrap:wrap}
+  .ayushman-strip-actions{width:100%;justify-content:flex-end}
+  .hospital-actions .secondary-button,.hospital-actions .ghost-button{flex:1}
+  .detail-grid{grid-template-columns:1fr}
+  .eligibility-result-actions button{flex:1}
+  .consent-row{grid-template-columns:1fr auto}
+  .access-badge{display:none}
+}
+
