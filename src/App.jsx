@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
-  Bell, Bot, Check, ChevronRight, ClipboardList, HelpCircle,
+  Bell, Bot, Check, ChevronRight, ClipboardList, HeartPulse, HelpCircle,
   Hospital, Home, IdCard, Menu, Pill, ShieldCheck, Stethoscope, Ticket, UserRound, X
 } from 'lucide-react';
 import Login from './pages/Login';
@@ -19,6 +19,8 @@ import HospitalAvailability from './pages/HospitalAvailability';
 import {
   initialAudit, initialMedicines, initialNotifications, ayushmanSeed, ayushmanUsageSeed, tokensIssuedToday
 } from './data';
+import { useLanguage } from './i18n';
+import LanguageSelector from './components/LanguageSelector';
 
 const NAV = [
   { id: 'home', label: 'Home', t: 'home', icon: Home },
@@ -70,6 +72,7 @@ const loadNotifications = () => {
 };
 
 export default function App() {
+  const { language, t } = useLanguage();
   const [user, setUser] = useState(null);
   const [page, setPage] = useState('home');
   const [mobileMenu, setMobileMenu] = useState(false);
@@ -201,10 +204,19 @@ export default function App() {
   const logout = () => { setUser(null); setPage('home'); setToken(null); };
 
   // ── Login gate ───────────────────────────────────────────
-  if (!user) return <Login onLogin={(patient) => { setUser(patient || { name: 'Pooja Singh' }); notify('Namaste! You are logged in (demo)'); logAudit('Patient logged in'); }} />;
+  if (!user) return <Login onLogin={(patient) => {
+    if (!patient || !patient.name) {
+      notify('Login failed. Please check your OTP and try again.');
+      logAudit('Login failed');
+      return;
+    }
+    setUser(patient);
+    notify('Namaste! You are logged in (demo)');
+    logAudit('Patient logged in');
+  }} />;
 
   const unreadCount = notifications.filter((n) => n.unread).length;
-  const crumb = CRUMBS[page] || 'Overview';
+  const crumb = page === 'home' ? t('overview') : (CRUMBS[page] || t('overview'));
 
   const pageProps = {
     go, notify, token, medicines, markTaken, bookToken, addedToMedicines, addMedicines,
@@ -213,7 +225,7 @@ export default function App() {
     ayushman, ayushmanDemo, onCreateHealthId: createHealthId, onAddAyushmanUsage: addAyushmanUsage,
     pushNotification,
     notifications, consents, onToggle: toggleConsent, audit, unreadCount,
-    onMarkAllRead: markAllRead, onLogout: logout
+    onMarkAllRead: markAllRead, onLogout: logout, language, t
   };
 
   const PAGES = {
@@ -245,25 +257,25 @@ export default function App() {
   return (
     <div className="app-shell">
       <aside className={`sidebar ${mobileMenu ? 'sidebar-open' : ''}`}>
-        <div className="brand"><a className="brand-logo-link" href="https://chatgpt.com/s/m_6aa2de813dd08191a582253feaf88a1f" target="_blank" rel="noreferrer"><img className="brand-logo" src="/assets/aas-logo-1024.png?v=1" width="1024" height="1024" alt="AAS, ADVANCE ALIED SERVICE, A SMART HEALTHCARE APP" /></a></div>
+        <div className="brand"><a className="brand-logo-link" href="https://chatgpt.com/s/m_6aa2de813dd08191a582253feaf88a1f" target="_blank" rel="noreferrer" aria-label="AAS — Advance Alied Service"><span className="brand-heart" aria-hidden="true"><HeartPulse size={20} strokeWidth={2.4} /></span><span className="brand-copy"><strong>AAS</strong><small>Advance Alied Service</small></span></a></div>
         <div className="patient-mini"><span className="avatar">PS</span><div><strong>Pooja Singh</strong><span>Patient · demo account</span></div></div>
         <nav className="side-nav" aria-label="Primary navigation">
-          <p className="nav-label">YOUR HEALTH</p>
-          {NAV.map(({ id, label, icon: Icon }) => (
+          <p className="nav-label">{t('yourHealth')}</p>
+          {NAV.map(({ id, label, t: labelKey, icon: Icon }) => (
             <button key={id} className={`nav-button ${page === id ? 'active' : ''}`} onClick={() => go(id)}>
-              <Icon size={18} /><span>{label}</span>
+              <Icon size={18} /><span>{t(labelKey) || label}</span>
             </button>
           ))}
-          <p className="nav-label nav-label-spaced">MORE</p>
-          <NavRow icon={Bell} label="Notifications" badge={unreadCount || null} active={page === 'notifications'} onClick={() => go('notifications')} />
-          <NavRow icon={ShieldCheck} label="Your data" active={page === 'consent'} onClick={() => go('consent')} />
-          <NavRow icon={UserRound} label="Profile" active={page === 'profile'} onClick={() => go('profile')} />
+          <p className="nav-label nav-label-spaced">{t('more')}</p>
+          <NavRow icon={Bell} label={t('notifications')} badge={unreadCount || null} active={page === 'notifications'} onClick={() => go('notifications')} />
+          <NavRow icon={ShieldCheck} label={t('yourData')} active={page === 'consent'} onClick={() => go('consent')} />
+          <NavRow icon={UserRound} label={t('profile')} active={page === 'profile'} onClick={() => go('profile')} />
         </nav>
         <div className="sidebar-help">
           <HelpCircle size={18} />
           <div>
-            <strong>Need help?</strong>
-            <span>Ask AAS anytime</span>
+            <strong>{t('needHelp')}</strong>
+            <span>{t('askAnytime')}</span>
           </div>
           <ChevronRight size={16} />
         </div>
@@ -276,6 +288,7 @@ export default function App() {
           <button className="icon-button menu-button" onClick={() => setMobileMenu(!mobileMenu)} aria-label="Open navigation"><Menu size={21} /></button>
           <div className="crumb">{crumb}</div>
           <div className="top-actions">
+            <LanguageSelector />
             <button className={`icon-button notification-button ${unreadNote && unreadCount ? 'has-unread' : ''}`} onClick={() => { go('notifications'); setUnreadNote(false); }} aria-label={`Notifications (${unreadCount} unread)`}>
               <Bell size={20} /><i />
             </button>
@@ -296,9 +309,9 @@ export default function App() {
       )}
 
       <nav className="bottom-nav" aria-label="Mobile navigation">
-        {(narrow ? NAV.filter((item) => item.id !== 'ayushman') : NAV).map(({ id, label, icon: Icon }) => (
+        {(narrow ? NAV.filter((item) => item.id !== 'ayushman') : NAV).map(({ id, label, t: labelKey, icon: Icon }) => (
           <button key={id} className={page === id ? 'active' : ''} onClick={() => go(id)} aria-label={label}>
-            <Icon size={19} /><span>{label}</span>
+            <Icon size={19} /><span>{t(labelKey) || label}</span>
           </button>
         ))}
       </nav>
