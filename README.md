@@ -8,7 +8,6 @@ health records, medicines, Ayushman services, and hospital availability.
 - `src/` - Frontend React application, pages, components, styles, and seed data.
 - `public/` - Static frontend assets copied into the Vite build.
 - `backend/` - Express demo API and in-memory development data.
-- `dist/` - Vite production output used by the GitHub Pages workflow.
 - `.github/workflows/` - Continuous deployment configuration for GitHub Pages.
 
 ## Run locally
