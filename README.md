@@ -5,16 +5,24 @@ health records, medicines, Ayushman services, and hospital availability.
 
 ## Project structure
 
-- `src/` - Frontend React application, pages, components, styles, and seed data.
-- `public/` - Static frontend assets copied into the Vite build.
-- `backend/` - Express demo API and in-memory development data.
+- `frontend/` - Vite React application for Vercel or GitHub Pages.
+- `backend/` - Express API for Render, with its own package manifest.
 - `.github/workflows/` - Continuous deployment configuration for GitHub Pages.
 
 ## Run locally
 
 ```bash
+cd frontend
 npm install
 npm run dev
+```
+
+In a second terminal:
+
+```bash
+cd backend
+npm install
+npm start
 ```
 
 The frontend runs on `http://localhost:5173` and the API runs on
@@ -23,8 +31,9 @@ The frontend runs on `http://localhost:5173` and the API runs on
 ## Production build
 
 ```bash
+cd frontend
 npm run build
 ```
 
-The production site is deployed to
-`https://psingh40677-lang.github.io/AAS/` by GitHub Actions.
+Deploy `frontend/` as a Vercel project. Deploy `backend/` as a Render Web
+Service with build command `npm install` and start command `npm start`.
