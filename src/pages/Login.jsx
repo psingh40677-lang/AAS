@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ArrowRight, HeartPulse, ShieldCheck } from 'lucide-react';
 import { useLanguage } from '../i18n';
 import LanguageSelector from '../components/LanguageSelector';
+import { apiUrl } from '../api';
 
 // Screen 1 — Login. Mock OTP demo authentication (demo OTP: 1234).
 export default function Login({ onLogin }) {
@@ -36,7 +37,7 @@ export default function Login({ onLogin }) {
     setBusy(true);
 
     try {
-      const response = await fetch('/api/auth/login', {
+      const response = await fetch(apiUrl('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mobile: cleanedMobile })
@@ -78,7 +79,7 @@ export default function Login({ onLogin }) {
     setBusy(true);
 
     try {
-      const response = await fetch('/api/auth/verify', {
+      const response = await fetch(apiUrl('/api/auth/verify'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mobile: digits, otp: cleanedOtp })

@@ -8,6 +8,14 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3001;
 app.use(express.json());
+const allowedOrigin = process.env.FRONTEND_ORIGIN || '*';
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  if (req.method === 'OPTIONS') return res.sendStatus(204);
+  next();
+});
 
 // ── Demo data (matches the frontend seed in src/data.js) ─────
 const db = {

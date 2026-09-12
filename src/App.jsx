@@ -21,6 +21,7 @@ import {
 } from './data';
 import { useLanguage } from './i18n';
 import LanguageSelector from './components/LanguageSelector';
+import { apiUrl } from './api';
 
 const NAV = [
   { id: 'home', label: 'Home', t: 'home', icon: Home },
@@ -141,7 +142,7 @@ export default function App() {
     const medicine = medicines.find((m) => m.id === id);
     notify(`${medicine ? medicine.name : 'Medicine'} marked as taken ✓`);
     logAudit(`${medicine ? medicine.name : 'Medicine'} marked as taken`);
-    fetch(`/api/medicines/${id}/taken`, { method: 'POST' }).catch(() => {});
+    fetch(apiUrl(`/api/medicines/${id}/taken`), { method: 'POST' }).catch(() => {});
   };
 
   const bookToken = (details) => {
@@ -154,7 +155,7 @@ export default function App() {
       title: `Token #${details.number} — ${details.department}`,
       body: `${details.doctor ? `${details.doctor} · ` : ''}${details.hospital} · ${details.date} at ${details.time}.`
     });
-    fetch('/api/tokens', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(details) }).catch(() => {});
+    fetch(apiUrl('/api/tokens'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(details) }).catch(() => {});
   };
 
   const startDoctorAppointment = (doctor) => {

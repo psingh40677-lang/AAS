@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { ArrowRight, Bot, ShieldCheck } from 'lucide-react';
 import { SectionHeading } from '../ui';
+import { apiUrl } from '../api';
 import { patient } from '../data';
 
 const SUGGESTIONS = [
@@ -87,7 +88,7 @@ export default function AskAAS({ go }) {
 
     // Ask the backend (which runs the same demo intent logic server-side),
     // but fall back to the local engine if the API is unreachable.
-    fetch('/api/ai/ask', {
+    fetch(apiUrl('/api/ai/ask'), {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message: text })
     })
