@@ -11,7 +11,7 @@ const getBedStatus = (hospital) => {
 };
 const getBloodStatus = (units) => units === 0 ? 'Not Available' : units <= 3 ? 'Low' : 'Available';
 
-export default function HospitalAvailability({ notify, pushNotification }) {
+export default function HospitalAvailability({ notify, pushNotification, go }) {
   const [hospitals, setHospitals] = useState(hospitalAvailabilitySeed);
   const [query, setQuery] = useState('');
   const [filter, setFilter] = useState('All Hospitals');
@@ -50,7 +50,7 @@ export default function HospitalAvailability({ notify, pushNotification }) {
 
   return (
     <>
-      <SectionHeading eyebrow="Demo availability data" title="Hospital Availability" copy="Check beds and blood inventory before visiting a hospital." action={<button className="primary-button" onClick={refresh}><RefreshCw size={16} /> Refresh availability</button>} />
+      <SectionHeading eyebrow="Demo availability data" title="Hospital Availability" copy="Check beds and blood inventory before visiting a hospital." action={<div className="availability-heading-actions"><button className="secondary-button" onClick={() => go('bed-availability')}><Hospital size={15} /> Bed Availability</button><button className="primary-button" onClick={refresh}><RefreshCw size={16} /> Refresh availability</button></div>} />
       <div className="availability-note"><ShieldAlert size={17} /><span>This is demo availability data. It is not connected to a live hospital-management system.</span></div>
       <div className="availability-toolbar">
         <label className="availability-search"><Search size={17} /><input aria-label="Search hospital or location" placeholder="Search hospital or location…" value={query} onChange={(event) => setQuery(event.target.value)} /></label>

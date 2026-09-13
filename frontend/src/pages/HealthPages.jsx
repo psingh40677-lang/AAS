@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowRight, Check, ChevronRight, FileText, Pill, Stethoscope } from 'lucide-react';
+import { ArrowRight, Check, ChevronRight, FileText, Pill, ReceiptText, Stethoscope } from 'lucide-react';
 import { SectionHeading } from '../ui';
 import { adherenceFor, prescription, recordIcons, records, slotIcons } from '../data';
 
@@ -98,6 +98,7 @@ export function Medicines({ medicines, markTaken, go }) {
         action={<button className="filter-button"><Pill size={16} /> Today</button>} />
       <div className="medicine-layout">
         <section className="medicine-list">
+          <button className="primary-button pharmacy-order-button" onClick={() => go('pharmacy-order')}><ReceiptText size={17} /> Place Order with Prescription</button>
           {medicines.map((medicine) => {
             const Icon = slotIcons[medicine.icon] || Pill;
             return (

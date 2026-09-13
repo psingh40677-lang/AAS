@@ -34,7 +34,7 @@ export const t = (key) => strings[key] || key;
 export const patient = {
   name: 'Pooja Singh',
   firstName: 'Pooja',
-  age: 58,
+  age: 19,
   mobile: '+91 98765 43210',
   abha: 'Demo ABHA ···· 1234',
   initials: 'RS'

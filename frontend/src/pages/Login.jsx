@@ -90,7 +90,7 @@ export default function Login({ onLogin }) {
         throw new Error(body?.message || 'OTP verification failed. Please try again.');
       }
 
-      onLogin(body && body.data ? body.data.patient : null);
+      onLogin(body && body.data ? body.data.patient : null, body && body.data ? body.data.token : null);
     } catch (requestError) {
       setError(requestError?.message || 'OTP verification failed. Please try again.');
     } finally {

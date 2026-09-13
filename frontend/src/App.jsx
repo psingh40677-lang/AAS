@@ -16,6 +16,8 @@ import AskAAS from './pages/AskAAS';
 import DoctorsAvailable from './pages/DoctorsAvailable';
 import { DoctorAppointmentBooking, DoctorAppointmentConfirmation } from './pages/DoctorAppointmentPages';
 import HospitalAvailability from './pages/HospitalAvailability';
+import { PharmacyOrder, PharmacyOrderConfirmation, PharmacyStaff } from './pages/PharmacyPages';
+import BedAvailability from './pages/BedAvailability';
 import {
   initialAudit, initialMedicines, initialNotifications, ayushmanSeed, ayushmanUsageSeed, tokensIssuedToday
 } from './data';
@@ -25,6 +27,7 @@ import { apiUrl } from './api';
 
 const NAV = [
   { id: 'home', label: 'Home', t: 'home', icon: Home },
+  { id: 'profile', label: 'Profile', t: 'profile', icon: UserRound },
   { id: 'tokens', label: 'Tokens', t: 'tokens', icon: Ticket },
   { id: 'doctors', label: 'Doctors Available', t: 'doctors', icon: Stethoscope },
   { id: 'hospital-availability', label: 'Hospital Availability', t: 'hospitalAvailability', icon: Hospital },
@@ -36,14 +39,15 @@ const NAV = [
 
 const CRUMBS = {
   home: 'Overview', tokens: 'Hospital Tokens', book: 'Book Token',
-  doctors: 'Doctors Available',
+  doctors: 'Doctors Available', 'bed-availability': 'Bed Availability', 'bed-staff': 'Bed Management',
+
   'hospital-availability': 'Hospital Availability',
   confirmation: 'Token Confirmation', ayushman: 'Ayushman Card',
   eligibility: 'Ayushman Eligibility', benefits: 'Ayushman Benefits',
   hospitals: 'Find Ayushman Hospital', 'hospital-detail': 'Hospital Details',
   'ayushman-help': 'Ayushman Help', documents: 'Documents & Card',
   records: 'Health Records', prescription: 'Prescription',
-  medicines: "Today's Medicines", notifications: 'Notifications',
+  medicines: "Today's Medicines", 'pharmacy-order': 'Place Pharmacy Order', 'pharmacy-status': 'Pharmacy Order Status', 'pharmacy-staff': 'Pharmacy Verification', notifications: 'Notifications',
   ask: 'Ask AAS', consent: 'Your Data & Consent', audit: 'Recent Activity',
   profile: 'Profile'
 };
@@ -75,9 +79,11 @@ const loadNotifications = () => {
 export default function App() {
   const { language, t } = useLanguage();
   const [user, setUser] = useState(null);
+  const [sessionToken, setSessionToken] = useState(null);
   const [page, setPage] = useState('home');
   const [mobileMenu, setMobileMenu] = useState(false);
   const [token, setToken] = useState(null);
+  const [pharmacyOrder, setPharmacyOrder] = useState(null);
   const [selectedDoctor, setSelectedDoctor] = useState(null);
   const [appointment, setAppointment] = useState(null);
   const [nextAppointmentNumber, setNextAppointmentNumber] = useState(tokensIssuedToday + 1);
@@ -208,16 +214,17 @@ export default function App() {
 
   const markAllRead = () => { setNotifications((current) => current.map((n) => ({ ...n, unread: false }))); setUnreadNote(false); notify('All notifications marked as read'); };
 
-  const logout = () => { setUser(null); setPage('home'); setToken(null); };
+  const logout = () => { setUser(null); setSessionToken(null); setPage('home'); setToken(null); };
 
   // ── Login gate ───────────────────────────────────────────
-  if (!user) return <Login onLogin={(patient) => {
+  if (!user) return <Login onLogin={(patient, authToken) => {
     if (!patient || !patient.name) {
       notify('Login failed. Please check your OTP and try again.');
       logAudit('Login failed');
       return;
     }
     setUser(patient);
+    setSessionToken(authToken);
     notify('Namaste! You are logged in (demo)');
     logAudit('Patient logged in');
   }} />;
@@ -232,7 +239,9 @@ export default function App() {
     ayushman, ayushmanDemo, onCreateHealthId: createHealthId, onAddAyushmanUsage: addAyushmanUsage,
     pushNotification,
     notifications, consents, onToggle: toggleConsent, audit, unreadCount,
-    onMarkAllRead: markAllRead, onLogout: logout, language, t
+    onMarkAllRead: markAllRead, onLogout: logout, language, t,
+    sessionToken, onProfileSaved: setUser, patient: user, pharmacyOrder,
+    onOrderCreated: setPharmacyOrder
   };
 
   const PAGES = {
@@ -240,6 +249,8 @@ export default function App() {
     tokens: TokenBooking,
     doctors: DoctorsAvailable,
     'hospital-availability': HospitalAvailability,
+    'bed-availability': BedAvailability,
+    'bed-staff': (props) => <BedAvailability {...props} staffMode />,
     'doctor-booking': DoctorAppointmentBooking,
     'doctor-confirmation': DoctorAppointmentConfirmation,
     confirmation: TokenConfirmation,
@@ -253,6 +264,9 @@ export default function App() {
     records: Records,
     prescription: Prescription,
     medicines: Medicines,
+    'pharmacy-order': PharmacyOrder,
+    'pharmacy-status': PharmacyOrderConfirmation,
+    'pharmacy-staff': PharmacyStaff,
     notifications: Notifications,
     ask: AskAAS,
     consent: Consent,
@@ -276,7 +290,6 @@ export default function App() {
           <p className="nav-label nav-label-spaced">{t('more')}</p>
           <NavRow icon={Bell} label={t('notifications')} badge={unreadCount || null} active={page === 'notifications'} onClick={() => go('notifications')} />
           <NavRow icon={ShieldCheck} label={t('yourData')} active={page === 'consent'} onClick={() => go('consent')} />
-          <NavRow icon={UserRound} label={t('profile')} active={page === 'profile'} onClick={() => go('profile')} />
         </nav>
         <div className="sidebar-help">
           <HelpCircle size={18} />
