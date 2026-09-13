@@ -1,12 +1,82 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
-  ArrowRight, Bell, CalendarDays, Check, CircleX, Clock3, UserRound
+  ArrowRight, Bell, CalendarDays, Check, CircleX, Clock3, Radio, RefreshCw, UserRound
 } from 'lucide-react';
-import { SectionHeading } from '../ui';
+import { Empty, Loading, SectionHeading } from '../ui';
+import { apiUrl } from '../api';
 import {
   bookingDates, bookingTimes, departments, deptIcons, doctorAvailability,
-  hospitals, tokensIssuedToday
+  hospitals
 } from '../data';
+
+const tokenLabel = (token) => token?.token || (token?.number ? `A-${String(token.number).padStart(3, '0')}` : null);
+
+export function LiveQueueStatus() {
+  const [status, setStatus] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [actionPending, setActionPending] = useState(false);
+
+  const loadStatus = async (quiet = false) => {
+    if (!quiet) setLoading(true);
+    try {
+      const response = await fetch(apiUrl('/api/queue/status'));
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Unable to load queue status.');
+      setStatus(result.data);
+      setError('');
+    } catch (loadError) {
+      setError(loadError.message || 'Unable to load queue status.');
+    } finally {
+      if (!quiet) setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadStatus();
+    const interval = window.setInterval(() => loadStatus(true), 3000);
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const updateQueue = async (path) => {
+    setActionPending(true);
+    try {
+      const response = await fetch(apiUrl(path), { method: 'POST' });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Queue update failed.');
+      setStatus(result.data);
+      setError('');
+    } catch (actionError) {
+      setError(actionError.message || 'Queue update failed.');
+    } finally {
+      setActionPending(false);
+    }
+  };
+
+  if (loading) return <section className="live-queue-card"><Loading label="Loading live queue…" compact /></section>;
+  if (error && !status) return <section className="live-queue-card"><div className="error-state"><strong>Live queue unavailable.</strong><p>{error}</p><button className="secondary-button" onClick={() => loadStatus()}><RefreshCw size={15} /> Try again</button></div></section>;
+  if (!status) return null;
+
+  const queueEmpty = status.queue.length === 0;
+  return (
+    <section className="live-queue-card" aria-label="Live queue status">
+      <div className="live-queue-heading"><div><p className="eyebrow"><Radio size={13} /> LIVE QUEUE STATUS</p><h2>Know your place in line</h2></div><button className="icon-button" onClick={() => loadStatus()} aria-label="Refresh queue status" title="Refresh queue status"><RefreshCw size={16} /></button></div>
+      {queueEmpty ? <Empty title="QUEUE IS EMPTY" copy="Newly generated tokens will appear here." /> : <div className="queue-metrics">
+        <div className="now-serving-metric"><span>NOW SERVING</span><strong>{tokenLabel(status.nowServing) || 'NO TOKEN CURRENTLY SERVING'}</strong></div>
+        <div className="queue-secondary-metrics">
+          <div><span>NEXT TOKEN</span><strong>{tokenLabel(status.nextToken) || 'NO NEXT TOKEN'}</strong></div>
+          <div><span>WAITING</span><strong>{status.waitingCount}</strong></div>
+        </div>
+      </div>}
+      {error && <p className="live-queue-error" role="alert">{error}</p>}
+      <div className="queue-staff-actions">
+        <span>Staff controls</span>
+        <button className="primary-button" disabled={actionPending || !status.nextToken} onClick={() => updateQueue('/api/queue/next')}><Radio size={16} /> CALL NEXT</button>
+        {status.nowServing && <><button className="secondary-button" disabled={actionPending} onClick={() => updateQueue(`/api/queue/${status.nowServing.id}/complete`)}>Complete</button><button className="secondary-button" disabled={actionPending} onClick={() => updateQueue(`/api/queue/${status.nowServing.id}/skip`)}>Skip</button></>}
+      </div>
+    </section>
+  );
+}
 
 // Screens 3–4 — token booking (4 steps) and confirmation.
 export function TokenBooking({ bookToken, defaultDepartment }) {
@@ -22,10 +92,9 @@ export function TokenBooking({ bookToken, defaultDepartment }) {
   const availableDoctors = doctors.filter((doctor) => doctor.slots.includes(time));
   const selectedDoctor = availableDoctors.find((doctor) => doctor.id === doctorId) || availableDoctors[0];
   const selectedDate = bookingDates.find((option) => option.value === date) || bookingDates[0];
-  const nextNumber = tokensIssuedToday + 1;
-
   return (
     <>
+      <LiveQueueStatus />
       <SectionHeading eyebrow="Tokens" title="Book a hospital token" copy="Four short steps — no queue, no paperwork." />
       <div className="steps" aria-label={`Step ${step} of 4`}>
         <span className={step === 1 ? 'active' : ''}>1 Hospital</span><i />
@@ -145,7 +214,7 @@ export function TokenBooking({ bookToken, defaultDepartment }) {
               <button className="primary-button" onClick={() => bookToken({
                 hospital: hospital.name,
                 empanelled: hospital.empanelled,
-                department, doctor: selectedDoctor.name, number: nextNumber,
+                department, doctor: selectedDoctor.name,
                 date: `${selectedDate.label} ${selectedDate.year}`, time, queue: 8
               })}>Confirm token <Check size={17} /></button>
             </div>
@@ -157,10 +226,8 @@ export function TokenBooking({ bookToken, defaultDepartment }) {
 }
 
 export function TokenConfirmation({ token, go, notify }) {
-  const details = token || {
-    hospital: 'District Hospital', department: 'General Medicine', number: 27,
-    date: `${bookingDates[0].label} ${bookingDates[0].year}`, time: '10:30 AM', queue: 8, empanelled: true
-  };
+  if (!token) return <Empty title="No token selected" copy="Book a token to view its confirmation." action={<button className="primary-button" onClick={() => go('tokens')}>Book a token <ArrowRight size={16} /></button>} />;
+  const details = token;
   return (
     <div className="confirmation-page">
       <div className="success-mark"><Check size={29} /></div>
@@ -170,7 +237,7 @@ export function TokenConfirmation({ token, go, notify }) {
 
       <section className="confirmation-card">
         <span className="confirmed-label">{details.department}</span>
-        <strong className="big-token">#{details.number}</strong>
+        <strong className="big-token">{tokenLabel(details)}</strong>
         <div className="confirmation-details">
           <div><CalendarDays size={17} /><span><small>Date</small><b>{details.date}</b></span></div>
           <div><Clock3 size={17} /><span><small>Time</small><b>{details.time}</b></span></div>

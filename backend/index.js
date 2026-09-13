@@ -20,7 +20,7 @@ app.use((req, res, next) => {
 // ── Demo data (matches the frontend seed in src/data.js) ─────
 const db = {
   patient: { name: 'Pooja Singh', firstName: 'Pooja', age: 58, mobile: '+91 98765 43210' },
-  tokens: [], // { id, department, number, date, time, queue, hospital }
+  tokens: [], // { id, department, number, token, date, time, queue, hospital, status }
   tokensIssuedToday: 26,
   records: [
     { id: 1, date: '05 Sep 2026', icon: 'stethoscope', title: 'General Medicine', type: 'Consultation', detail: 'Routine consultation. Vitals normal. Continue current medicines. Next review 15 September.' },
@@ -54,6 +54,30 @@ const logAudit = (text) => {
 
 const pushNotification = (n) => {
   db.notifications.unshift({ id: db.notifications.length + 1 + Math.random(), unread: true, ...n });
+};
+
+const formatToken = (number) => `A-${String(number).padStart(3, '0')}`;
+
+const queueStatus = () => {
+  const serving = db.tokens.find((token) => token.status === 'serving') || null;
+  const waiting = db.tokens.filter((token) => token.status === 'waiting');
+  return {
+    nowServing: serving,
+    nextToken: waiting[0] || null,
+    waitingCount: waiting.length,
+    queue: db.tokens,
+    updatedAt: new Date().toISOString()
+  };
+};
+
+const transitionNextToken = () => {
+  const serving = db.tokens.find((token) => token.status === 'serving');
+  if (serving) serving.status = 'completed';
+  const next = db.tokens.find((token) => token.status === 'waiting');
+  if (!next) return null;
+  next.status = 'serving';
+  next.calledAt = new Date().toISOString();
+  return next;
 };
 
 // ── Auth (mock OTP demo) ─────────────────────────────────────
@@ -102,7 +126,7 @@ app.get('/api/tokens/slots', (_req, res) => {
 app.post('/api/tokens', (req, res) => {
   const { department = 'General Medicine', date = '10 September 2026', time = '10:30 AM', hospital = 'District Hospital' } = (req.body || {});
   const number = ++db.tokensIssuedToday; // backend generates the token number
-  const token = { id: db.tokens.length + 1, department, number, date, time, hospital, queue: 8 };
+  const token = { id: db.tokens.length + 1, department, number, token: formatToken(number), date, time, hospital, queue: 8, status: 'waiting', createdAt: new Date().toISOString() };
   db.tokens.push(token);
   pushNotification({ kind: 'Token confirmed', icon: 'ticket', title: `Token #${number} — ${department}`, body: `${hospital} · ${date} at ${time}.` });
   logAudit(`Token #${number} booked — ${department}`);
@@ -110,6 +134,29 @@ app.post('/api/tokens', (req, res) => {
 });
 
 app.get('/api/tokens/my', (_req, res) => ok(res, db.tokens));
+
+// ── Live queue ──────────────────────────────────────────────
+app.get('/api/queue/status', (_req, res) => ok(res, queueStatus()));
+
+app.post('/api/queue/next', (_req, res) => {
+  const next = transitionNextToken();
+  if (!next) return fail(res, 409, 'There are no waiting tokens in the queue.');
+  logAudit(`${next.token} called next`);
+  ok(res, queueStatus());
+});
+
+const updateTokenStatus = (status) => (req, res) => {
+  const token = db.tokens.find((item) => String(item.id) === req.params.id);
+  if (!token) return fail(res, 404, 'Token not found.');
+  token.status = status;
+  token.updatedAt = new Date().toISOString();
+  logAudit(`${token.token} marked ${status}`);
+  ok(res, queueStatus());
+};
+
+app.post('/api/queue/:id/complete', updateTokenStatus('completed'));
+app.post('/api/queue/:id/skip', updateTokenStatus('skipped'));
+app.post('/api/queue/:id/cancel', updateTokenStatus('cancelled'));
 
 // ── Records ──────────────────────────────────────────────────
 app.get('/api/records', (_req, res) => ok(res, db.records));

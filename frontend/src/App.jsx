@@ -145,17 +145,23 @@ export default function App() {
     fetch(apiUrl(`/api/medicines/${id}/taken`), { method: 'POST' }).catch(() => {});
   };
 
-  const bookToken = (details) => {
-    setToken(details);
-    go('confirmation');
-    notify('Token booked successfully ✓');
-    logAudit(`Token #${details.number} booked — ${details.department}${details.doctor ? ` with ${details.doctor}` : ''}`);
-    pushNotification({
-      kind: 'Token confirmed', icon: 'ticket',
-      title: `Token #${details.number} — ${details.department}`,
-      body: `${details.doctor ? `${details.doctor} · ` : ''}${details.hospital} · ${details.date} at ${details.time}.`
-    });
-    fetch(apiUrl('/api/tokens'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(details) }).catch(() => {});
+  const bookToken = async (details) => {
+    try {
+      const response = await fetch(apiUrl('/api/tokens'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(details) });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.message || 'Token booking failed.');
+      setToken(result.data);
+      go('confirmation');
+      notify('Token booked successfully ✓');
+      logAudit(`Token ${result.data.token} booked — ${result.data.department}${result.data.doctor ? ` with ${result.data.doctor}` : ''}`);
+      pushNotification({
+        kind: 'Token confirmed', icon: 'ticket',
+        title: `${result.data.token} — ${result.data.department}`,
+        body: `${result.data.doctor ? `${result.data.doctor} · ` : ''}${result.data.hospital} · ${result.data.date} at ${result.data.time}.`
+      });
+    } catch (error) {
+      notify(error.message || 'Token booking failed.');
+    }
   };
 
   const startDoctorAppointment = (doctor) => {
