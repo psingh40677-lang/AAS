@@ -6,7 +6,8 @@
 const express = require('express');
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const requestedPort = Number(process.env.PORT);
+const PORT = requestedPort > 0 ? requestedPort : 3001;
 app.use(express.json({ limit: '8mb' }));
 const allowedOrigin = process.env.FRONTEND_ORIGIN || '*';
 app.use((req, res, next) => {

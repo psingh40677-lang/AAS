@@ -24,6 +24,7 @@ import {
 import { useLanguage } from './i18n';
 import LanguageSelector from './components/LanguageSelector';
 import { apiUrl } from './api';
+import SetuNovaPage from './pages/SetuNovaPage';
 
 const NAV = [
   { id: 'home', label: 'Home', t: 'home', icon: Home },
@@ -76,7 +77,7 @@ const loadNotifications = () => {
   }
 };
 
-export default function App() {
+function HealthcareApp() {
   const { language, t } = useLanguage();
   const [user, setUser] = useState(null);
   const [sessionToken, setSessionToken] = useState(null);
@@ -345,4 +346,12 @@ function NavRow({ icon: Icon, label, badge, active, onClick }) {
       <Icon size={18} /><span>{label}</span>{badge && <b>{badge}</b>}
     </button>
   );
+}
+
+export default function App() {
+  const path = window.location.pathname.replace(/\/+$/, '').toLowerCase();
+  const hashPath = window.location.hash.replace(/^#/, '').replace(/\/+$/, '').toLowerCase();
+  return path.endsWith('/setu-nova') || hashPath.endsWith('/setu-nova')
+    ? <SetuNovaPage />
+    : <HealthcareApp />;
 }
